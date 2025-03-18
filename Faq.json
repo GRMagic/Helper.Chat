@@ -1,0 +1,52 @@
+[
+  {
+    "Id": 1,
+    "Question": "O que é a Supero e qual é sua missão?",
+    "Response": "A Supero é um grupo empresarial focado em soluções inovadoras para impulsionar o sucesso dos clientes, com transparência e respeito."
+  },
+  {
+    "Id": 2,
+    "Question": "Quais serviços a Supero oferece?",
+    "Response": "A Supero oferece Talent As A Service, Fábrica de Software, Integrações de Sistemas, Inteligência Artificial, Soluções Mobile, IoT, SAP e Cloud Computing."
+  },
+  {
+    "Id": 3,
+    "Question": "Como a Supero ajuda empresas na transformação digital?",
+    "Response": "Através de soluções tecnológicas personalizadas, automação de processos, integração de sistemas e análise de dados para otimizar operações."
+  },
+  {
+    "Id": 4,
+    "Question": "Quais são as principais soluções tecnológicas da Supero?",
+    "Response": "A Supero oferece soluções em Inteligência Artificial, IoT, Automação, DevOps para SAP, integração de sistemas e gestão de custos em nuvem."
+  },
+  {
+    "Id": 5,
+    "Question": "Quando e onde a Supero foi fundada?",
+    "Response": "A Supero foi fundada em 2003 em Blumenau, Santa Catarina, e expandiu para Florianópolis e Joinville em 2007."
+  },
+  {
+    "Id": 6,
+    "Question": "A Supero trabalha com quais tipos de clientes e segmentos de mercado?",
+    "Response": "A Supero atende empresas de diversos segmentos, como tecnologia, indústria, logística e setores que necessitam de transformação digital."
+  },
+  {
+    "Id": 7,
+    "Question": "Quais são os diferenciais da Supero em relação a outras empresas de tecnologia?",
+    "Response": "A Supero se destaca pela gestão humanizada, assertividade na seleção de talentos e soluções customizadas com alta taxa de satisfação dos clientes."
+  },
+  {
+    "Id": 8,
+    "Question": "Como funciona o serviço de Talent As A Service da Supero?",
+    "Response": "A Supero aloca profissionais altamente qualificados para projetos específicos, garantindo acompanhamento contínuo e adaptação às necessidades do cliente."
+  },
+  {
+    "Id": 9,
+    "Question": "A Supero oferece soluções para integração de sistemas?",
+    "Response": "Sim, a Supero fornece soluções de iPaaS de última geração para conectar sistemas, aplicativos e dados de maneira eficiente."
+  },
+  {
+    "Id": 10,
+    "Question": "Como entrar em contato ou contratar os serviços da Supero?",
+    "Response": "Os interessados podem entrar em contato pelo site oficial da Supero ou através dos canais de atendimento disponíveis na página de contato."
+  }
+]
