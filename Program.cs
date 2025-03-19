@@ -26,7 +26,9 @@ var serviceCollection = new ServiceCollection()
     .AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(new OllamaEmbeddingGenerator(new Uri(endpoint), modelId))      // Usado para gerar embeddings de texto
     .AddOllamaChatCompletion()                                                                                                  // Usado para responder chat
     .AddInMemoryVectorStore()                                                                                                   // Usado para armazenar embeddings
-    .AddSingleton<FaqPlugin>();                                                                                                 // Plugin de FAQ
+    .AddSingleton<FaqPlugin>()                                                                                                  // Plugin de FAQ
+    .AddSingleton<ImagePlugin>()                                                                                                // Plugin de análise de imagens
+    .AddHttpClient();                                                                                                           // Usado para fazer requisições HTTP
 
 // Cria um kernel com as dependencias configuradas
 
@@ -67,6 +69,12 @@ foreach(var info in extraInfo)
 var faqPlugion = serviceProvider.GetRequiredService<FaqPlugin>();
 await faqPlugion.InitializeAsync();
 kernel.Plugins.AddFromObject(faqPlugion, "PerguntasFrequentes");
+
+// Adiciona um plugin de imagem ao kernel
+
+var imagePlugin = serviceProvider.GetRequiredService<ImagePlugin>();
+await imagePlugin.InitializeAsync();
+kernel.Plugins.AddFromObject(imagePlugin, "AnaliseDeImagens");
 
 // Cria um serviço de completude de chat
 
