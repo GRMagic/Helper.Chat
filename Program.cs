@@ -34,7 +34,19 @@ var kernelBuilder = serviceCollection.AddKernel();
 var serviceProvider = serviceCollection.BuildServiceProvider();
 var kernel = serviceProvider.GetRequiredService<Kernel>();
 
+// Pede para baixa o modelo caso necessário
+
+var ollamaClient = serviceProvider.GetRequiredService<OllamaApiClient>();
+var pulling = ollamaClient.PullModelAsync(new OllamaSharp.Models.PullModelRequest() { Model = modelId });
+Console.WriteLine($"Preparando modelo {modelId}");
+var emptyLine = new string(' ', Console.BufferWidth) + '\r';
+await foreach (var progress in pulling)
+    if (progress != null)
+        Console.Write($"{emptyLine}{progress.Status} ({progress.Total:n0} bytes) : {progress.Percent:n2}%\r");
+Console.WriteLine();
+
 // Adiciona um plugin de FAQ ao kernel
+
 var faqPlugion = serviceProvider.GetRequiredService<FaqPlugin>();
 await faqPlugion.InitializeAsync();
 kernel.Plugins.AddFromObject(faqPlugion, "PerguntasFrequentes");
@@ -48,8 +60,9 @@ var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 var history = new ChatHistory();
 history.AddSystemMessage(systemMessage);
 
-// Loop de chat
+// Loop do chat
 
+Console.WriteLine("Chat pronto para uso!");
 string? userInput = string.Empty;
 while (userInput is not null)
 {

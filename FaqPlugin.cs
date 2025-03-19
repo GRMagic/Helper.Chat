@@ -52,8 +52,11 @@ public class FaqPlugin
     public async Task<List<FaqBasic>> GetFaq(string question)
     {
         WriteLine($"Buscando perguntas frequentes semelhantes a \"{question}\"...");
-        var faqCollection = await GetFaqCollection();
+
         var faqsResult = new List<FaqBasic>();
+        if (string.IsNullOrWhiteSpace(question)) return faqsResult;
+
+        var faqCollection = await GetFaqCollection();
 
         var questionEmbedding = await _embeddingGenerator.GenerateEmbeddingVectorAsync(question);
 
