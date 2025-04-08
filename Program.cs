@@ -6,7 +6,8 @@ using Microsoft.SemanticKernel.Connectors.Ollama;
 using OllamaSharp;
 
 var endpoint = "http://localhost:11434";
-var modelId = "llama3.2";
+var chatModelId = "llama3.2";
+var embeddingModelId = "nomic-embed-text";
 var systemMessage =
     """
     Você é um assistente virtual especializado em responder perguntas frequentes com base em uma lista predefinida. Seu objetivo é fornecer respostas diretas e precisas apenas para as perguntas que estão na lista.
@@ -22,13 +23,13 @@ var systemMessage =
 // Cria uma coleção e configura as dependencias necessárias
 
 var serviceCollection = new ServiceCollection()
-    .AddSingleton(new OllamaApiClient(new Uri(endpoint), modelId))                                                              // Usado para conectado com o servidor Ollama
-    .AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(new OllamaEmbeddingGenerator(new Uri(endpoint), modelId))      // Usado para gerar embeddings de texto
-    .AddOllamaChatCompletion()                                                                                                  // Usado para responder chat
-    .AddInMemoryVectorStore()                                                                                                   // Usado para armazenar embeddings
-    .AddSingleton<FaqPlugin>()                                                                                                  // Plugin de FAQ
-    .AddSingleton<ImagePlugin>()                                                                                                // Plugin de análise de imagens
-    .AddHttpClient();                                                                                                           // Usado para fazer requisições HTTP
+    .AddSingleton(new OllamaApiClient(new Uri(endpoint), chatModelId))                                                              // Usado para conectado com o servidor Ollama
+    .AddSingleton<IEmbeddingGenerator<string, Embedding<float>>>(new OllamaEmbeddingGenerator(new Uri(endpoint), embeddingModelId)) // Usado para gerar embeddings de texto
+    .AddOllamaChatCompletion()                                                                                                      // Usado para responder chat
+    .AddInMemoryVectorStore()                                                                                                       // Usado para armazenar embeddings
+    .AddSingleton<FaqPlugin>()                                                                                                      // Plugin de FAQ
+    .AddSingleton<ImagePlugin>()                                                                                                    // Plugin de análise de imagens
+    .AddHttpClient();                                                                                                               // Usado para fazer requisições HTTP
 
 // Cria um kernel com as dependencias configuradas
 
@@ -36,33 +37,58 @@ var kernelBuilder = serviceCollection.AddKernel();
 var serviceProvider = serviceCollection.BuildServiceProvider();
 var kernel = serviceProvider.GetRequiredService<Kernel>();
 
-// Solicita o download do modelo caso necessário
+// Solicita o download do modelo do chat caso necessário
 
 var ollamaClient = serviceProvider.GetRequiredService<OllamaApiClient>();
-var pulling = ollamaClient.PullModelAsync(new () { Model = modelId });
-Console.WriteLine($"Preparando modelo {modelId}");
+var pulling = ollamaClient.PullModelAsync(new () { Model = chatModelId });
+Console.WriteLine($"Preparando modelo {chatModelId}");
 var emptyLine = new string(' ', Console.BufferWidth) + '\r';
 await foreach (var progress in pulling)
     if (progress != null)
         Console.Write($"{emptyLine}{progress.Status} ({progress.Total:n0} bytes) : {progress.Percent:n2}%\r");
 Console.WriteLine();
 
-// Exibe algumas informações sobre o modelo que está sendo usado
+// Exibe algumas informações sobre o modelo que está sendo usado no chat
 
-var modelInfo = await ollamaClient.ShowModelAsync(new() { Model = modelId });
+var modelInfo = await ollamaClient.ShowModelAsync(new() { Model = chatModelId });
 Console.WriteLine("Informações do modelo:");
 Console.WriteLine($"{"Arquitetura",-30}{modelInfo.Info.Architecture}");
 Console.WriteLine($"{"Parâmetros",-30}{modelInfo.Info.ParameterCount:n0}");
 Console.WriteLine($"{"Quantização",-30}{modelInfo.Details.QuantizationLevel}");
 var extraInfo = new Dictionary<string, string>()
 {
-    { "general.languages", "Linguagens" },
-    { "llama.context_length", "Tamanho do Contexto" },
-    { "llama.embedding_length", "Tamanho do Embedding"}
+    { ".languages", "Linguagens" },
+    { ".context_length", "Tamanho do Contexto" },
+    { ".embedding_length", "Tamanho do Embedding"},
 };
-foreach(var info in extraInfo)
-    if (modelInfo.Info.ExtraInfo?.ContainsKey(info.Key) ?? false)
-        Console.WriteLine($"{info.Value,-30}{modelInfo.Info.ExtraInfo[info.Key]}");
+foreach (var info in extraInfo) {
+    var key = modelInfo.Info.ExtraInfo?.Keys.FirstOrDefault(k => k.EndsWith(info.Key));
+    if (key != null && modelInfo.Info.ExtraInfo != null)
+        Console.WriteLine($"{info.Value,-30}{modelInfo.Info.ExtraInfo[key]}");
+}
+
+// Solicita o download do modelo do embedding caso necessário
+
+pulling = ollamaClient.PullModelAsync(new() { Model = embeddingModelId });
+Console.WriteLine($"Preparando modelo {embeddingModelId}");
+await foreach (var progress in pulling)
+    if (progress != null)
+        Console.Write($"{emptyLine}{progress.Status} ({progress.Total:n0} bytes) : {progress.Percent:n2}%\r");
+Console.WriteLine();
+
+// Exibe algumas informações sobre o modelo que está sendo usado para embedding
+
+modelInfo = await ollamaClient.ShowModelAsync(new() { Model = embeddingModelId});
+Console.WriteLine("Informações do modelo:");
+Console.WriteLine($"{"Arquitetura",-30}{modelInfo.Info.Architecture}");
+Console.WriteLine($"{"Parâmetros",-30}{modelInfo.Info.ParameterCount:n0}");
+Console.WriteLine($"{"Quantização",-30}{modelInfo.Details.QuantizationLevel}");
+foreach (var info in extraInfo)
+{
+    var key = modelInfo.Info.ExtraInfo?.Keys.FirstOrDefault(k => k.EndsWith(info.Key));
+    if (key != null && modelInfo.Info.ExtraInfo != null)
+        Console.WriteLine($"{info.Value,-30}{modelInfo.Info.ExtraInfo[key]}");
+}
 
 // Adiciona um plugin de FAQ ao kernel
 
