@@ -62,8 +62,8 @@ public class ImagePlugin : IDisposable
         
 
         var response = await _ollamaChatClient!.GetResponseAsync(message);
-        WriteLine(response.Message.Text ?? string.Empty);
-        return response.Message.Text;
+        WriteLine(response.Text ?? string.Empty);
+        return response.Text;
     }
 
     private static void WriteLine(string text)

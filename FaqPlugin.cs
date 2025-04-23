@@ -60,11 +60,11 @@ public class FaqPlugin
 
         var questionEmbedding = await _embeddingGenerator.GenerateEmbeddingVectorAsync(question);
 
-        var questionResults = await faqCollection.VectorizedSearchAsync(questionEmbedding, new VectorSearchOptions()
+        var questionResults = await faqCollection.VectorizedSearchAsync(questionEmbedding, new VectorSearchOptions<FaqModel>()
         {
             Top = 3,
             Skip = 0,
-            VectorPropertyName = nameof(FaqModel.QuestionEmbedding)
+            VectorProperty = x => x.QuestionEmbedding
         });
 
         await foreach (var result in questionResults.Results)
@@ -76,11 +76,11 @@ public class FaqPlugin
             }
         }
 
-        var responseResults = await faqCollection.VectorizedSearchAsync(questionEmbedding, new VectorSearchOptions()
+        var responseResults = await faqCollection.VectorizedSearchAsync(questionEmbedding, new VectorSearchOptions<FaqModel>()
         {
             Top = 5,
             Skip = 0,
-            VectorPropertyName = nameof(FaqModel.ResponseEmbedding)
+            VectorProperty = x => x.ResponseEmbedding
         });
 
         await foreach (var result in responseResults.Results)
